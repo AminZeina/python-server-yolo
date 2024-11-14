@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -23,10 +24,6 @@ logger = logging.getLogger('uvicorn')
 app = FastAPI()
 
 model = YOLO("yolo_initial.pt")
-
-@app.get("/")
-async def home():
-    return FileResponse('index.html')
 
 @app.post("/detect")
 async def create_upload_file(file: UploadFile):
@@ -63,6 +60,8 @@ async def get_latest_image():
     except AttributeError:
         raise HTTPException(status_code=404, detail="No image found")
     return FileResponse(imagepath)
+
+app.mount("/", StaticFiles(directory="static", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080,reload=True)

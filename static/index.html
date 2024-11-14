@@ -4,7 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="script.js"></script>
+    <title>Drone</title>
   </head>
   <body>
     <form
@@ -15,16 +17,7 @@
       <input type="file" name="file" />
       <input type="submit" value="upload" />
     </form>
-
-    <div id="droneImage"><img/></div>
+    <div><button id="toggleRefreshButton" value="start">Start refreshing image</button></div>
+    <img id="droneImage" style="width:800px;height:800px;"/>
   </body>
-  <script>
-    var url = "http://localhost:8080/latest-image";
-    var droneImage = document.querySelector('#droneImage > img');
-    var updateInterval = setInterval(updateImage, 2000); // get new image every 2 seconds
-
-    function updateImage(){
-      droneImage.src = url + "?"+ new Date().getTime()
-  }
-  </script>
 </html>
