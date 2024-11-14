@@ -1,7 +1,8 @@
 from typing import Annotated
+from fastapi.responses import FileResponse
 from ultralytics import YOLO
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from datetime import datetime
 import logging
 import uvicorn
@@ -32,16 +33,18 @@ async def create_upload_file(file: UploadFile):
     logger.info(file.filename)
     logger.info(file.size)
     logger.info(file.headers)
-    
+   
 
     file_location = f"uploaded/{file.filename}"
     with open(file_location, "wb+") as f:
         f.write(file.file.read())
+        
 
     results = model.predict(file_location)
 
     result = results[0]
     result.save(f'detected/out-{file.filename}')    
+    app.state.latest_file = f'detected/out-{file.filename}'
     
     elapsed = datetime.now() - start
     logger.info(f'elapsed time: {elapsed.total_seconds() * 1000}')
@@ -49,6 +52,14 @@ async def create_upload_file(file: UploadFile):
     logger.info(f'results.speed (in ms): {result.speed}')
 
     return result.to_json()
+
+@app.get("/latest-image")
+async def get_latest_image():
+    try:
+        imagepath = app.state.latest_file
+    except AttributeError:
+        raise HTTPException(status_code=404, detail="No image found")
+    return FileResponse(imagepath)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080,reload=True)

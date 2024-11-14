@@ -2,10 +2,10 @@ import os
 import requests
 from datetime import datetime
 from pathlib import Path
+import time
 
-
-url = "http://127.0.0.1:5000/predictionImages" # using burnsy's inital endpoints
-#url = "http://127.0.0.1:8080/detect"
+#url = "http://127.0.0.1:5000/predictionImages" # using burnsy's inital endpoints
+url = "http://127.0.0.1:8080/detect"
 
 img_dir = "test_images"
 elapsed_time_list = []
@@ -29,6 +29,7 @@ for img_path in pathlist:
                 f.write(r.content)
         print(f'elapsed time: {elapsed} ms')
         elapsed_time_list.append(elapsed)
+    #time.sleep(4) # can use sleep if you want to test the html page visually to see each new image being shown on the page
 
 print("*** tests done ***")
 print(f'list of elapased time per request {elapsed_time_list}')
