@@ -24,6 +24,9 @@ app = FastAPI()
 
 model = YOLO("yolo_initial.pt")
 
+@app.get("/")
+async def home():
+    return FileResponse('index.html')
 
 @app.post("/detect")
 async def create_upload_file(file: UploadFile):
