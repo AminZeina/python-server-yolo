@@ -2,11 +2,12 @@ from typing import Annotated
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
-
+from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from datetime import datetime
 import logging
 import uvicorn
+from pathlib import Path
 
 '''
 This is an inital "mock" endpoint for uploading an image for object detection.
@@ -24,6 +25,11 @@ logger = logging.getLogger('uvicorn')
 app = FastAPI()
 
 model = YOLO("yolo_initial.pt")
+
+# make required directories
+Path("./uploaded/").mkdir(exist_ok=True)
+Path("./detected/").mkdir(exist_ok=True)
+
 
 @app.post("/detect")
 async def create_upload_file(file: UploadFile):
