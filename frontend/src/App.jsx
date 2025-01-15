@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import './index.css'
 
 function App() {
   const baseUrl = useRef("http://localhost:8080")
@@ -24,26 +23,15 @@ function App() {
 
   return (
     <>
-      <div>
       <h1>Drone Image Viewer</h1>
       <div>
-        <button
-          id="toggleRefreshButton"
-          onClick={toggleRefreshing}
-          className="refresh-button"
-        >
+        <button id="toggleRefreshButton" onClick={toggleRefreshing} style={{backgroundColor: 'cyan', marginBottom: "1em"}}>
           {isRefreshing ? "Stop refreshing image" : "Start refreshing image"}
         </button>
       </div>
       <div>
-        <img
-          id="droneImage"
-          src={latestImageUrl}
-          alt="Drone Feed"
-          className="drone-image"
-        />
+        <img id="droneImage" src={latestImageUrl} alt="Drone Feed" style={{width:"75%", height:"auto"}}/>
       </div>
-    </div>
     </>
   )
 }
