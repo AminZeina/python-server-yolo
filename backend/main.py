@@ -4,10 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from ultralytics import YOLO
 from pathlib import Path
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import logging
 import uvicorn
 from pathlib import Path
+
 
 '''
 This is an inital "mock" endpoint for uploading an image for object detection.
@@ -24,6 +26,14 @@ BASE_DIR_PATH = Path(__file__).parent
 logger = logging.getLogger('uvicorn')
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 model = YOLO(BASE_DIR_PATH / "yolo8_v5.pt")
 
@@ -71,4 +81,5 @@ async def get_latest_image():
 app.mount("/", StaticFiles(directory= BASE_DIR_PATH / "static", html=True), name="static")
 
 if __name__ == "__main__":
+    # change host address when running with the pi
     uvicorn.run("main:app", host="0.0.0.0", port=8080,reload=True)
