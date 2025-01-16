@@ -20,15 +20,16 @@ It's worth noting that the detection itself only typically takes 30-40 ms (shown
 so the majority of time is spend on overhead. So, this likely can and will be improved on in the future.
 '''
 
+BASE_DIR_PATH = Path(__file__).parent
 logger = logging.getLogger('uvicorn')
 
 app = FastAPI()
 
-model = YOLO("yolo_initial.pt")
+model = YOLO(BASE_DIR_PATH / "yolo8_v5.pt")
 
 # make required directories
-Path("./uploaded/").mkdir(exist_ok=True)
-Path("./detected/").mkdir(exist_ok=True)
+Path(BASE_DIR_PATH / "uploaded/").mkdir(exist_ok=True)
+Path(BASE_DIR_PATH / "detected/").mkdir(exist_ok=True)
 
 
 @app.post("/detect")
@@ -41,7 +42,7 @@ async def create_upload_file(file: UploadFile):
     logger.info(file.headers)
    
 
-    file_location = f"uploaded/{file.filename}"
+    file_location = BASE_DIR_PATH / f"uploaded/{file.filename}"
     with open(file_location, "wb+") as f:
         f.write(file.file.read())
         
@@ -49,8 +50,8 @@ async def create_upload_file(file: UploadFile):
     results = model.predict(file_location)
 
     result = results[0]
-    result.save(f'detected/out-{file.filename}')    
-    app.state.latest_file = f'detected/out-{file.filename}'
+    result.save(BASE_DIR_PATH / f'detected/out-{file.filename}')    
+    app.state.latest_file = BASE_DIR_PATH / f'detected/out-{file.filename}'
     
     elapsed = datetime.now() - start
     logger.info(f'elapsed time: {elapsed.total_seconds() * 1000}')
@@ -67,7 +68,7 @@ async def get_latest_image():
         raise HTTPException(status_code=404, detail="No image found")
     return FileResponse(imagepath)
 
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+app.mount("/", StaticFiles(directory= BASE_DIR_PATH / "static", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8080,reload=True)
