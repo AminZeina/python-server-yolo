@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import logging
 import uvicorn
+import json
 from pathlib import Path
 
 
@@ -36,6 +37,7 @@ app.add_middleware(
 )
 
 model = YOLO(BASE_DIR_PATH / "yolo8_v5.pt")
+app.state.enable_fire = False
 
 # make required directories
 Path(BASE_DIR_PATH / "uploaded/").mkdir(exist_ok=True)
@@ -68,7 +70,13 @@ async def create_upload_file(file: UploadFile):
     logger.info(f'results.names: {result.names}')
     logger.info(f'results.speed (in ms): {result.speed}')
 
-    return result.to_json()
+    result_dict = result.summary()
+    result_dict.append({"fire": app.state.enable_fire})
+
+    if app.state.enable_fire:
+        app.state.enable_fire = False
+
+    return json.dumps(result_dict, indent=2)
 
 @app.get("/latest-image")
 async def get_latest_image():
@@ -77,6 +85,11 @@ async def get_latest_image():
     except AttributeError:
         raise HTTPException(status_code=404, detail="No image found")
     return FileResponse(imagepath)
+
+@app.post("/fire")
+async def fire():
+    app.state.enable_fire = True
+
 
 app.mount("/", StaticFiles(directory= BASE_DIR_PATH / "static", html=True), name="static")
 
