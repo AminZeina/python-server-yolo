@@ -12,6 +12,13 @@ function App() {
     setIsRefreshing((prev) => !prev);
   }
 
+  const fireHandler = () => {
+    
+    fetch(baseUrl.current + "/fire", {
+      method: "POST",
+    })
+  }
+
   useEffect(() => {
     if (isRefreshing) {
       refreshIntervalId.current = setInterval(() => {setLatestImageUrl(baseUrl.current + "/latest-image?" + new Date().getTime())}, 2000); 
@@ -28,10 +35,14 @@ function App() {
         <button id="toggleRefreshButton" onClick={toggleRefreshing} style={{backgroundColor: 'cyan', marginBottom: "1em"}}>
           {isRefreshing ? "Stop refreshing image" : "Start refreshing image"}
         </button>
+        <button id="fireButton" onClick={fireHandler} disabled={!isRefreshing} style={{backgroundColor:"rgba(196, 0, 0, 0.65)", marginLeft: "1em"}}>
+          Fire
+        </button>
       </div>
       <div>
         <img id="droneImage" src={latestImageUrl} alt="Drone Feed" style={{width:"75%", height:"auto"}}/>
       </div>
+      
     </>
   )
 }

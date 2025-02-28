@@ -33,6 +33,7 @@ for img_path in pathlist:
 
 print("*** tests done ***")
 print(f'list of elapased time per request {elapsed_time_list}')
+print(f'Average request time: {sum(elapsed_time_list)/ len(elapsed_time_list)}')
 
 
 '''
