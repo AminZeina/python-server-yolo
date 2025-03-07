@@ -9,6 +9,7 @@ from datetime import datetime
 import logging
 import uvicorn
 import json
+import argparse
 from pathlib import Path
 
 
@@ -36,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-model = YOLO(BASE_DIR_PATH / "yolo8_v5.pt")
+model = YOLO(BASE_DIR_PATH / "yolo8_v15.pt")
 app.state.enable_fire = False
 
 # make required directories
@@ -94,5 +95,11 @@ async def fire():
 app.mount("/", StaticFiles(directory= BASE_DIR_PATH / "static", html=True), name="static")
 
 if __name__ == "__main__":
-    # change host address when running with the pi
-    uvicorn.run("main:app", host="0.0.0.0", port=8080,reload=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--server_ip', nargs='?', const='0.0.0.0')
+
+    args = parser.parse_args()
+
+    server_ip = args.server_ip if args.server_ip else '0.0.0.0'
+
+    uvicorn.run("main:app", host=server_ip, port=8080,reload=True)
