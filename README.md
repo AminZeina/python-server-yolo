@@ -24,9 +24,10 @@ This project consists of a `./frontend/` and a `./backend/`, which must both be 
 
 ## Running the project 
 - To run the project, you must run the FastAPI backend and the React frontend simultaneously. To do that:
-1. from `./backend/`, run `main.py`
+1. from `./backend/`, run `main.py [--server_ip <IP_ADDRESS>]`
+  - `server_ip` is an optional argument that sets the IP address of the server; default = 0.0.0.0
 2. from `./frontend/`, run `npm install`, then run `npm run dev`
 
-- The backend server will now be running at http://localhost:8080, and the React frontend will be running at http://localhost:5173. 
+- The backend server will now be running at http://localhost:8080 (or the IP given by --server_ip), and the React frontend will be running at http://localhost:5173. 
 
 
