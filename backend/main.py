@@ -63,13 +63,12 @@ async def create_upload_file(file: UploadFile):
 
     result = results[0]
     result.save(BASE_DIR_PATH / f'static/detected/out-{file.filename}')    
-    app.state.latest_file = BASE_DIR_PATH / f'static/detected/out-{file.filename}'
+    app.state.latest_file = f'/detected/out-{file.filename}'
     
     # elapsed = datetime.now() - start
 
     # logger.info(f'elapsed time: {elapsed.total_seconds() * 1000}')
     logger.info(f'results.speed (in ms): {result.speed}')
-    
 
     result_dict = result.summary()
     if result_dict:
@@ -88,10 +87,10 @@ async def create_upload_file(file: UploadFile):
 
 @app.get("/latest-image")
 async def get_latest_image(request: Request):
-    try:
-        img_url = request.url_for(app.state.latest_file)
-    except AttributeError:
-        raise HTTPException(status_code=404, detail="No image found")
+    # try:
+    img_url = request.url_for('static', path=app.state.latest_file)
+    # except AttributeError:
+    #     raise HTTPException(status_code=404, detail="No image found")
     
     return {'img_url':img_url, 'confidence': app.state.last_confidence}
 
@@ -101,6 +100,7 @@ async def fire():
 
 
 app.mount("/", StaticFiles(directory= BASE_DIR_PATH / "static", html=True), name="static")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

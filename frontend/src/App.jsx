@@ -4,12 +4,27 @@ import './index.css'
 
 function App() {
   const baseUrl = useRef("http://localhost:8080")
-  const [latestImageUrl, setLatestImageUrl] = useState("http://localhost:8080/latest-image")
+  const [latestImageUrl, setLatestImageUrl] = useState(baseUrl.current + "/latest-image")
+  const [latestConfidence, setLatestConfidence] = useState(0.0)
   const [isRefreshing, setIsRefreshing] = useState(false);
   const refreshIntervalId = useRef(null);
 
   const toggleRefreshing = () => {
     setIsRefreshing((prev) => !prev);
+  }
+
+  const getLatestImage = () => {
+    fetch(baseUrl.current + "/latest-image?" + new Date().getTime(), {
+      method: "GET",
+    }).then((response) => {
+      if (response.ok) {
+        return response.json()
+      }
+    }).then((data) => {
+      console.log(data)
+      setLatestImageUrl(data.img_url._url)
+      setLatestConfidence(data.confidence) 
+    })
   }
 
   const fireHandler = () => {
@@ -21,7 +36,7 @@ function App() {
 
   useEffect(() => {
     if (isRefreshing) {
-      refreshIntervalId.current = setInterval(() => {setLatestImageUrl(baseUrl.current + "/latest-image?" + new Date().getTime())}, 2000); 
+      refreshIntervalId.current = setInterval(getLatestImage, 2000); 
     } else {
       clearInterval(refreshIntervalId.current);
     }
@@ -42,6 +57,7 @@ function App() {
       <div>
         <img id="droneImage" src={latestImageUrl} alt="Drone Feed" style={{width:"75%", height:"auto"}}/>
       </div>
+      <text>current confidence: {latestConfidence}</text>
       
     </>
   )
