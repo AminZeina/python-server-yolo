@@ -33,6 +33,13 @@ function App() {
     })
   }
 
+  const fireColour = () => {
+    if (latestConfidence < 0.25) return 'cyan'
+    else if (latestConfidence < 0.50) return 'green'
+    else if (latestConfidence < 0.75) return 'orange'
+    else return 'red'
+  }
+
   useEffect(() => {
     if (isRefreshing) {
       refreshIntervalId.current = setInterval(getLatestImage, 2000); 
@@ -49,12 +56,12 @@ function App() {
         <button id="toggleRefreshButton" onClick={toggleRefreshing} style={{backgroundColor: 'cyan', marginBottom: "1em"}}>
           {isRefreshing ? "Stop refreshing image" : "Start refreshing image"}
         </button>
-        <button id="fireButton" onClick={fireHandler} disabled={!isRefreshing} style={{backgroundColor:"rgba(196, 0, 0, 0.65)", marginLeft: "1em"}}>
+        <button id="fireButton" onClick={fireHandler} disabled={!isRefreshing} style={{backgroundColor: fireColour(), marginLeft: "1em"}}>
           Fire
         </button>
       </div>
       <div>
-        <img id="droneImage" src={latestImageUrl} alt="Drone Feed" style={{width:"75%", height:"auto"}}/>
+        <img id="droneImage" src={latestImageUrl} alt="Drone Feed" style={{width:"75%", height:"auto", shadowColor: fireColour}}/>
       </div>      
     </>
   )
