@@ -21,7 +21,6 @@ function App() {
         return response.json()
       }
     }).then((data) => {
-      console.log(data)
       setLatestImageUrl(data.img_url._url)
       setLatestConfidence(data.confidence) 
     })
@@ -56,9 +55,7 @@ function App() {
       </div>
       <div>
         <img id="droneImage" src={latestImageUrl} alt="Drone Feed" style={{width:"75%", height:"auto"}}/>
-      </div>
-      <text>current confidence: {latestConfidence}</text>
-      
+      </div>      
     </>
   )
 }
