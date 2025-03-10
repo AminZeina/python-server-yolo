@@ -87,10 +87,10 @@ async def create_upload_file(file: UploadFile):
 
 @app.get("/latest-image")
 async def get_latest_image(request: Request):
-    # try:
-    img_url = request.url_for('static', path=app.state.latest_file)
-    # except AttributeError:
-    #     raise HTTPException(status_code=404, detail="No image found")
+    try:
+        img_url = request.url_for('static', path=app.state.latest_file)
+    except AttributeError:
+        raise HTTPException(status_code=404, detail="No image found")
     
     return {'img_url':img_url, 'confidence': app.state.last_confidence}
 
