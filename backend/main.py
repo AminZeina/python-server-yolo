@@ -1,10 +1,10 @@
 from typing import Annotated
+from fastapi import FastAPI, File, HTTPException, UploadFile, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 from pathlib import Path
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 import logging
 import uvicorn
@@ -39,39 +39,46 @@ app.add_middleware(
 
 model = YOLO(BASE_DIR_PATH / "yolo8_v15.pt")
 app.state.enable_fire = False
+app.state.last_confidence = 0
 
 # make required directories
 Path(BASE_DIR_PATH / "uploaded/").mkdir(exist_ok=True)
-Path(BASE_DIR_PATH / "detected/").mkdir(exist_ok=True)
+Path(BASE_DIR_PATH / "static/detected/").mkdir(exist_ok=True)
 
 
 @app.post("/detect")
 async def create_upload_file(file: UploadFile):
-    logger.info('Detection endpoint hit')
-    start = datetime.now()
+    # logger.info('Detection endpoint hit')
+    # start = datetime.now()
 
-    logger.info(file.filename)
-    logger.info(file.size)
-    logger.info(file.headers)
-   
+    # logger.info(file.filename)
+    # logger.info(file.size)
+    # logger.info(file.headers)
 
     file_location = BASE_DIR_PATH / f"uploaded/{file.filename}"
     with open(file_location, "wb+") as f:
         f.write(file.file.read())
-        
 
     results = model.predict(file_location)
 
     result = results[0]
-    result.save(BASE_DIR_PATH / f'detected/out-{file.filename}')    
-    app.state.latest_file = BASE_DIR_PATH / f'detected/out-{file.filename}'
+    result.save(BASE_DIR_PATH / f'static/detected/out-{file.filename}')    
+    app.state.latest_file = BASE_DIR_PATH / f'static/detected/out-{file.filename}'
     
-    elapsed = datetime.now() - start
-    logger.info(f'elapsed time: {elapsed.total_seconds() * 1000}')
-    logger.info(f'results.names: {result.names}')
+    # elapsed = datetime.now() - start
+
+    # logger.info(f'elapsed time: {elapsed.total_seconds() * 1000}')
     logger.info(f'results.speed (in ms): {result.speed}')
+    
 
     result_dict = result.summary()
+    if result_dict:
+        # There was at least one detection, so save the confidence value
+        app.state.last_confidence = result_dict[0]['confidence']
+    else:
+        # No detection, so set confidence to 
+        app.state.last_confidence = 0
+
     result_dict.append({"fire": app.state.enable_fire})
 
     if app.state.enable_fire:
@@ -80,12 +87,13 @@ async def create_upload_file(file: UploadFile):
     return json.dumps(result_dict, indent=2)
 
 @app.get("/latest-image")
-async def get_latest_image():
+async def get_latest_image(request: Request):
     try:
-        imagepath = app.state.latest_file
+        img_url = request.url_for(app.state.latest_file)
     except AttributeError:
         raise HTTPException(status_code=404, detail="No image found")
-    return FileResponse(imagepath)
+    
+    return {'img_url':img_url, 'confidence': app.state.last_confidence}
 
 @app.post("/fire")
 async def fire():
