@@ -37,7 +37,7 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-model = YOLO(BASE_DIR_PATH / "yolo8_v15.pt")
+model = YOLO(BASE_DIR_PATH / "yolo8_v16.pt")
 app.state.enable_fire = False
 app.state.last_confidence = 0
 
